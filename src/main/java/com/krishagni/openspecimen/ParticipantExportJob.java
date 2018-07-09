@@ -1,7 +1,6 @@
 package com.krishagni.openspecimen;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,7 +29,6 @@ public class ParticipantExportJob implements ScheduledTask{
 	
 	@Override
 	public void doJob(ScheduledJobRun jobRun) throws IOException {
-		
 		try {
 			exportParticipants();
 			logger.error("Successfully created Participants.csv file with valid data");
@@ -40,7 +38,7 @@ public class ParticipantExportJob implements ScheduledTask{
 	}
 	
 	@PlusTransactional
-	private void exportParticipants() throws IOException {
+	private void exportParticipants() throws Exception {
 		List<Long> cpIds = daoFactory.getCollectionProtocolDao().getAllCpIds();
 		
 		CsvFileWriter csvFileWriter = getCSVWriter(getFile());		
@@ -48,25 +46,22 @@ public class ParticipantExportJob implements ScheduledTask{
 		
 		for (Long cpId : cpIds) {
     		CprListCriteria criteria = new CprListCriteria().cpId(cpId);
-
     		boolean endOfCpParticipants = false;
-    		while (!endOfCpParticipants) {
-      			List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(criteria);  
-      			exportToCsv(cprs, csvFileWriter);
-
-      			criteria.startAt(cprs.size());
-      			endOfCpParticipants = cprs.size() < criteria.maxResults();
-      			
-    		}
+   
+    		    while (!endOfCpParticipants) {
+      			  List<CollectionProtocolRegistration> cprs = daoFactory.getCprDao().getCprs(criteria);  
+      			  exportToCsv(cprs, csvFileWriter);
+      			  csvFileWriter.flush();
+      			  criteria.startAt(cprs.size());
+      			  endOfCpParticipants = cprs.size() < criteria.maxResults();
+    		    }
   		}
-		
-		csvFileWriter.flush();
 		csvFileWriter.close();
 	}
 	
 	private void exportToCsv(List<CollectionProtocolRegistration> cprs, CsvFileWriter csvFileWriter) {
-		for(CollectionProtocolRegistration cprsDetail: cprs) {
-		csvFileWriter.writeNext(getRow(cprsDetail));
+		for(CollectionProtocolRegistration cprDetail : cprs) {
+			csvFileWriter.writeNext(getRow(cprDetail));
 		}
 	}
 		
@@ -74,20 +69,20 @@ public class ParticipantExportJob implements ScheduledTask{
 		return CsvFileWriter.createCsvFileWriter(file);
 	}
 
-	private OutputStream getFile() throws FileNotFoundException {
+	private OutputStream getFile() throws Exception {
 		try {
-			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants.csv");
-		} catch (FileNotFoundException e) {
-			logger.error("Error occured while creating file", e);
-			throw new FileNotFoundException();
+			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants.csv", false);
+		} catch (Exception e) {
+			logger.error("Error occured while creating file");
+			throw new Exception();
 		}
 	}
 	
 	private String[] getHeader() {
-		return new String[] { "firstName", "middleName" };
+		return new String[] {"firstName", "lastName"};
 	}
 
 	private String[] getRow(CollectionProtocolRegistration cprDetail) {
-		return new String[] {cprDetail.getParticipant().getFirstName(), cprDetail.getParticipant().getMiddleName()};
+		return new String[] {cprDetail.getParticipant().getFirstName(), cprDetail.getParticipant().getLastName()};
 	}
 }

@@ -35,7 +35,10 @@ public class ParticipantExportJob implements ScheduledTask{
 			exportParticipants();
 			logger.error("Successfully created Participants.csv file with valid data");
 		} catch (Exception e) {
+			//Sri: Again you are swallowing exceptions. have given this comment multiple times. Never swallow exceptions.
 			logger.error("Error operating inside class com.krishagni.catissueplus.core.biospecimen.services.impl.ParticipantExportJob");
+			//Sri: You are writing an meaningless error message which is of no use to anyone.
+			//Sri: Log the exception msg.
 		} 	
 	}
 	
@@ -78,6 +81,9 @@ public class ParticipantExportJob implements ScheduledTask{
 			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants_" + timeStamp + ".csv", false);
 		} catch (Exception e) {
 			logger.error("Error occured while creating file");
+			//Sri: Another meaningless error message. Just sit for a min, close your eyes and think 
+			// you are some random developer after 2 years seeing this msg in the log.
+			// And think whether he will understand anything from it.
 			throw new Exception();
 		}
 	}

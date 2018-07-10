@@ -72,7 +72,7 @@ public class ParticipantExportJob implements ScheduledTask{
 	}
 
 	private OutputStream getFile() throws Exception {
-		String timeStamp = new SimpleDateFormat("yyyymmddHHmmss").format(new Date());
+		String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 		
 		try {
 			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants_" + timeStamp + ".csv", false);

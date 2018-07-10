@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -70,8 +72,10 @@ public class ParticipantExportJob implements ScheduledTask{
 	}
 
 	private OutputStream getFile() throws Exception {
+		String timeStamp = new SimpleDateFormat("yyyymmddHHmmss").format(new Date());
+		
 		try {
-			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants.csv", false);
+			return new FileOutputStream(ConfigUtil.getInstance().getDataDir() + File.separator + "Participants_" + timeStamp + ".csv", false);
 		} catch (Exception e) {
 			logger.error("Error occured while creating file");
 			throw new Exception();
